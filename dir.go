@@ -15,6 +15,9 @@ type Dir struct {
 	dirs []string
 }
 
+// Gopath is a Dir for accessing files within GOROOT and GOPATH.
+var Gopath = newDir("GOROOT", "", "GOPATH", "")
+
 // Open the file subpath inside a directory. The search is started in
 // the most important directory, which is specified by the HOME variable.
 // If no file is found, the error for the first directory is returned.
@@ -129,9 +132,10 @@ func (d *Dir) EnsureDir(subpath string, perm os.FileMode) (path string, err erro
 func newDir(envHome, defHome, envDirs string, defDirs ...string) *Dir {
 	base := os.Getenv(envHome)
 	if base == "" {
-		base = defHome
+		base = expandTilde(defHome)
 	}
-	d := &Dir{[]string{expandTilde(base)}}
+	d := new(Dir)
+	d.add(base)
 	if dirs := os.Getenv(envDirs); dirs != "" {
 		s := 0
 		for p, ch := range dirs {
@@ -143,6 +147,13 @@ func newDir(envHome, defHome, envDirs string, defDirs ...string) *Dir {
 		d.add(dirs[s:])
 	} else {
 		d.dirs = append(d.dirs, defDirs...)
+	}
+	if len(d.dirs) == 0 {
+		p, err := os.Getwd()
+		if err != nil {
+			p = "."
+		}
+		d.add(p)
 	}
 	return d
 }
