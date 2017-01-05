@@ -32,7 +32,7 @@
 // following defaults are different from the defaults for Linux:
 //
 //    XDG_CACHE_HOME=/Library/Caches
-//    XDG_CONFIG_HOME=/Library/Application Support
+//    XDG_DATA_HOME=/Library/Application Support
 //
 // Windows
 //
